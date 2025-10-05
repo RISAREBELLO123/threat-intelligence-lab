@@ -69,3 +69,13 @@ coverage:
 
 validate: simulate coverage
 	@echo "Simulation and coverage complete for $(DATE)"
+
+.PHONY: dashboard
+
+dashboard:
+	. .venv/bin/activate && streamlit run src/dashboard/streamlit_app.py
+
+.PHONY: flask-dashboard
+
+flask-dashboard:
+	. .venv/bin/activate && python -m src.dashboard.flask_app

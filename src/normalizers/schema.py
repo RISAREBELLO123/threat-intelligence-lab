@@ -1,6 +1,6 @@
 from __future__ import annotations
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Dict, Any, Union
 
 class StixLike(BaseModel):
     # canonical IOC value used for dedup/correlation
@@ -24,7 +24,7 @@ class StixLike(BaseModel):
     
     # provenance and lineage for audits
     source: str = ""
-    source_event_id: Optional[str | int] = None
+    source_event_id: Optional[Union[str, int]] = None
     raw_sha256: Optional[str] = None
     extra: Dict[str, Any] = {}
     
@@ -32,6 +32,14 @@ class StixLike(BaseModel):
     attack_ids: List[str] = []
     cve_ids: List[str] = []
     cwe_ids: List[str] = []
+    
+    @field_validator('confidence', mode='before')
+    @classmethod
+    def convert_confidence_to_string(cls, v):
+        """Convert numeric confidence values to strings"""
+        if v is None:
+            return None
+        return str(v)
     
     class Config:
         extra = "ignore"

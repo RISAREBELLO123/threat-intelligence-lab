@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "ticket_id": "TCK-0001",
+    "indicator": true,
+    "action": "investigate",
+    "status": "open",
+    "priority": "high"
+  }
+]

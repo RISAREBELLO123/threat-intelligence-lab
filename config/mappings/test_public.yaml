@@ -1,11 +1,11 @@
 map:
-  indicator: ["title", "body"]
-  indicator_type: ["type"]
-  first_seen: ["created_at", "timestamp"]
-  last_seen: ["updated_at"]
+  indicator: ["indicator", "value", "ioc"]
+  indicator_type: ["type", "indicator_type"]
+  first_seen: ["first_seen", "timestamp"]
+  last_seen: ["last_seen", "timestamp"]
   confidence: ["confidence"]
   references: ["refs", "references"]
-  desc: ["body", "title"]
+  desc: ["description", "title"]
 
 coerce:
   indicator_type: "auto"
@@ -13,6 +13,4 @@ coerce:
 defaults:
   confidence: "medium"
 
-pass_through:
-  - "id"
-  - "userId"
+pass_through: []

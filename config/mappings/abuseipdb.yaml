@@ -1,0 +1,22 @@
+map:
+  indicator: ["ipAddress", "ip"]
+  indicator_type: ["type"]
+  first_seen: ["lastReportedAt", "createdAt"]
+  last_seen: ["lastReportedAt"]
+  confidence: ["abuseConfidenceScore"]
+  references: ["reports"]
+  desc: ["usageType", "domain"]
+
+coerce:
+  indicator_type: "auto"
+
+defaults:
+  confidence: "medium"
+
+pass_through:
+  - "abuseConfidenceScore"
+  - "countryCode"
+  - "usageType"
+  - "isp"
+  - "domain"
+  - "totalReports"
