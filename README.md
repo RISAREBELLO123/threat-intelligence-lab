@@ -1,13 +1,27 @@
-This project implements an end-to-end threat intelligence aggregation and analysis pipeline covering 12+ intel sources.
+# Threat Intelligence Aggregation Lab
 
-## Features
-- Multi-source threat data collection
-- Normalization to common schema
-- Enrichment with reputation/context
-- Deduplication and merging
-- Graph correlation (ATT&CK, CVE, CWE)
-- Risk scoring and prioritization
-- Detection rule generation (Sigma)
-- Automated reporting and visualization
-- Orchestration and scheduling
-- Adversary simulation validation
+An automated end-to-end threat intelligence pipeline that collects, normalizes, enriches, correlates, scores, and generates detections from 12+ open-source intelligence feeds.
+
+## Overview
+
+This project implements a complete Security Operations Center (SOC) pipeline covering the full lifecycle from raw threat data ingestion to actionable detection rules and executive reporting.
+
+## Installation
+
+### Prerequisites
+- Python 3.10+
+- Git
+- API keys for selected threat intelligence sources
+
+### Setup
+```bash
+# Clone the repository
+git clone https://github.com/risarebelo123/threat-intelligence-lab.git
+cd threat-intelligence-lab
+
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
