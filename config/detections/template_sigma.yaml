@@ -1,0 +1,11 @@
+title: Indicator match - {{ indicator }}
+id: auto-{{ indicator_sha }}
+status: experimental
+description: "auto-generated detection for prioritized indicator"
+logsource:
+  category: network_connection
+detection:
+  selection:
+    dst_ip: {{ indicator }}
+  condition: selection
+level: {{ band }}

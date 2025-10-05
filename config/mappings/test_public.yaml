@@ -1,0 +1,18 @@
+map:
+  indicator: ["title", "body"]
+  indicator_type: ["type"]
+  first_seen: ["created_at", "timestamp"]
+  last_seen: ["updated_at"]
+  confidence: ["confidence"]
+  references: ["refs", "references"]
+  desc: ["body", "title"]
+
+coerce:
+  indicator_type: "auto"
+
+defaults:
+  confidence: "medium"
+
+pass_through:
+  - "id"
+  - "userId"

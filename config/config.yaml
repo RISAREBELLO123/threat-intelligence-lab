@@ -1,0 +1,215 @@
+project:
+  name: threat-aggregation-lab
+  data_dir: data
+  raw_dir: data/raw
+  processed_dir: data/processed
+
+http:
+  timeout_seconds: 30
+  user_agent: Threat-Aggregation-Lab/1.0
+  retries:
+    total: 3
+    backoff_factor: 0.5
+
+sources:
+  - key: alienvault_otx
+    enabled: false
+    type: generic_rest
+    base_url: "https://otx.alienvault.com/api/v1"
+    auth_type: header
+    auth_env_key: ALIENVAULT_OTX_API_KEY
+    endpoints:
+      - path: "/pulses/subscribed"
+        params:
+          limit_param: "limit"
+          page_param: "page"
+          default_limit: 20
+          default_lookback_days: 7
+    rate_limit:
+      req_per_min: 60
+    headers:
+      X-OTX-API-KEY: ""
+
+  - key: abuseipdb
+    enabled: false
+    type: generic_rest
+    base_url: "https://api.abuseipdb.com/api/v2"
+    auth_type: header
+    auth_env_key: ABUSEIPDB_API_KEY
+    endpoints:
+      - path: "/blacklist"
+        params:
+          limit_param: "limit"
+          default_limit: 100
+          default_lookback_days: 1
+    rate_limit:
+      req_per_min: 4
+    headers:
+      Key: ""
+
+normalization:
+  target_schema: stix_like
+  fields: [indicator, indicator_type, first_seen, last_seen, source, confidence, references]
+
+merge_policy:
+  key_fields: ["indicator", "indicator_type"]
+  fuzzy:
+    enabled: false
+  precedence:
+    sources: ["alienvault_otx", "abuseipdb"]
+  confidence:
+    normalize_map:
+      "": "medium"
+      "low": "low"
+      "medium": "medium"
+      "high": "high"
+    bucket_to_score:
+      "low": 0.3
+      "medium": 0.6
+      "high": 0.9
+    combine: "weighted_max"
+  union_fields: ["labels", "references"]
+  out_dir: "data/merged"
+
+correlation:
+  out_dir: "data/graph"
+  nodes:
+    indicator: { key: "Indicator", id_fields: ["indicator","indicator_type"] }
+    source: { key: "Source", id_fields: ["source_key"] }
+  edges:
+    supplied_by: { key: "SUPPLIED_BY", base_weight: 0.3 }
+  rules:
+    attach_source: true
+  scoring:
+    half_life_days: 30
+    min_weight: 0.2
+    max_weight: 1.0
+
+scoring:
+  out_dir: "data/scored"
+  recency:
+    half_life_days: 30
+    floor: 0.3
+  trust:
+    top_source_bonus: 1.0
+    mid_source_bonus: 0.9
+    other_source_bonus: 0.8
+  confidence:
+    low: 0.7
+    medium: 0.9
+    high: 1.0
+  bands:
+    critical: 0.85
+    high: 0.70
+    medium: 0.50
+    correlation:
+  out_dir: "data/graph"
+  nodes:
+    indicator: { key: "Indicator", id_fields: ["indicator","indicator_type"] }
+    technique: { key: "Technique", id_fields: ["attack_id"] }
+    vulnerability: { key: "Vulnerability", id_fields: ["cve_id"] }
+    weakness: { key: "Weakness", id_fields: ["cwe_id"] }
+    malware: { key: "Malware", id_fields: ["name"] }
+    asn: { key: "ASN", id_fields: ["asn"] }
+    country: { key: "Country", id_fields: ["cc"] }
+    reference: { key: "Reference", id_fields: ["url"] }
+    source: { key: "Source", id_fields: ["source_key"] }
+  edges:
+    indicates: { key: "INDICATES", base_weight: 0.7 }
+    linked_to: { key: "LINKED_TO", base_weight: 0.5 }
+    observed_in: { key: "OBSERVED_IN", base_weight: 0.6 }
+    hosted_on: { key: "HOSTED_ON", base_weight: 0.5 }
+    located_in: { key: "LOCATED_IN", base_weight: 0.4 }
+    referenced_by: { key: "REFERENCED_BY", base_weight: 0.3 }
+    supplied_by: { key: "SUPPLIED_BY", base_weight: 0.3 }
+  rules:
+    attach_attack_ids: true
+    parse_attack_from_text: true
+    attach_cves: true
+    attach_cwes: true
+    attach_malware_families: true
+    attach_asn_geo: true
+    attach_references: true
+    attach_source: true
+  scoring:
+    half_life_days: 30
+    min_weight: 0.2
+    max_weight: 1.0
+correlation:
+  out_dir: "data/graph"
+  nodes:
+    indicator: { key: "Indicator", id_fields: ["indicator","indicator_type"] }
+    technique: { key: "Technique", id_fields: ["attack_id"] }
+    vulnerability: { key: "Vulnerability", id_fields: ["cve_id"] }
+    weakness: { key: "Weakness", id_fields: ["cwe_id"] }
+    malware: { key: "Malware", id_fields: ["name"] }
+    asn: { key: "ASN", id_fields: ["asn"] }
+    country: { key: "Country", id_fields: ["cc"] }
+    reference: { key: "Reference", id_fields: ["url"] }
+    source: { key: "Source", id_fields: ["source_key"] }
+  edges:
+    indicates: { key: "INDICATES", base_weight: 0.7 }
+    linked_to: { key: "LINKED_TO", base_weight: 0.5 }
+    observed_in: { key: "OBSERVED_IN", base_weight: 0.6 }
+    hosted_on: { key: "HOSTED_ON", base_weight: 0.5 }
+    located_in: { key: "LOCATED_IN", base_weight: 0.4 }
+    referenced_by: { key: "REFERENCED_BY", base_weight: 0.3 }
+    supplied_by: { key: "SUPPLIED_BY", base_weight: 0.3 }
+  rules:
+    attach_attack_ids: true
+    parse_attack_from_text: true
+    attach_cves: true
+    attach_cwes: true
+    attach_malware_families: true
+    attach_asn_geo: true
+    attach_references: true
+    attach_source: true
+  scoring:
+    half_life_days: 30
+    min_weight: 0.2
+    max_weight: 1.0
+scoring:
+  out_dir: "data/scored"
+  recency:
+    half_life_days: 30
+    floor: 0.3
+  trust:
+    top_source_bonus: 1.0
+    mid_source_bonus: 0.9
+    other_source_bonus: 0.8
+  confidence:
+    low: 0.7
+    medium: 0.9
+    high: 1.0
+  signals:
+    reputation:
+      enabled: true
+      map_min: 0
+      map_max: 100
+      cap: 0.35
+    categories:
+      enabled: true
+      weights:
+        phishing: 0.10
+        malware: 0.15
+        c2: 0.20
+        botnet: 0.15
+        spam: 0.05
+      cap: 0.30
+    malware_families:
+      enabled: true
+      per_family: 0.10
+      cap: 0.30
+  graph:
+    enabled: true
+    degree_weight: 0.15
+    technique_weight: 0.20
+    cve_weight: 0.20
+    cap: 0.45
+  bands:
+    critical: 0.85
+    high: 0.70
+    medium: 0.50
+  budget:
+    enabled: true
+    max_alerts: 500    

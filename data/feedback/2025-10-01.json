@@ -1,0 +1,8 @@
+[
+  {
+    "indicator": "198.51.100.1",
+    "band": "P1",
+    "decision": "true_positive",
+    "comment": "observed in attack simulation"
+  }
+]
